@@ -7,6 +7,8 @@ set(MAIN_REQUIRES
     app_update
     BMI160_driver
     bmi160Impl
+    lsm303agr-pid
+    lsm303agrImpl
 )
 
 idf_component_register(SRCS "gap.c" "gatt_svr.c" "main.c" 

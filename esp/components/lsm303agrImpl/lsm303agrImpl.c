@@ -104,7 +104,7 @@ void platform_init(void)
         .scl_io_num = GPIO_NUM_1,
         .sda_pullup_en = GPIO_PULLDOWN_DISABLE,
         .scl_pullup_en = GPIO_PULLDOWN_DISABLE,
-        .master.clk_speed = 100000,
+        .master.clk_speed = 10000,
     };
     i2c_param_config(i2c_master_port, &conf);
 
@@ -123,221 +123,221 @@ High Level sensor functions
 
 
 */
-uint8_t lsm_mag_rst = 0;
-stmdev_ctx_t dev_ctx_xl = {};
-stmdev_ctx_t dev_ctx_mg = {};
-lsm303agr_reg_t reg = {};
+// uint8_t lsm_mag_rst = 0;
+// stmdev_ctx_t dev_ctx_xl = {};
+// stmdev_ctx_t dev_ctx_mg = {};
+// lsm303agr_reg_t reg = {};
 
-// initalize magnetometre
-int lsmInit()
-{
+// // initalize magnetometre
+// int lsmInit()
+// {
 
-    dev_ctx_xl.write_reg = platform_write_accell;
-    dev_ctx_xl.read_reg = platform_read_accell;
+//     dev_ctx_xl.write_reg = platform_write_accell;
+//     dev_ctx_xl.read_reg = platform_read_accell;
 
-    dev_ctx_mg.write_reg = platform_write_mag;
-    dev_ctx_mg.read_reg = platform_read_mag;
+//     dev_ctx_mg.write_reg = platform_write_mag;
+//     dev_ctx_mg.read_reg = platform_read_mag;
 
-    platform_init();
+//     platform_init();
 
-    // Wait sensor boot time
-    platform_delay(20);
+//     // Wait sensor boot time
+//     platform_delay(20);
 
-    // initialize magnetometre
-    // uint8_t ret = __lsmMagInit(dev_ctx_mg);
-    // if (ret != 0)
-    // {
-    //     ESP_LOGI(LSM_IMPL_TAG, "lsm303agr mag init error %d", ret);
-    //     return ret;
-    // }
+//     // initialize magnetometre
+//     uint8_t ret = __lsmMagInit(dev_ctx_mg);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "lsm303agr mag init error %d", ret);
+//         return ret;
+//     }
 
-    // initialize accelleration device
-    uint8_t ret = __lsmAcellInit();
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "lsm303agr acell init error %d", ret);
-        return ret;
-    }
+//     // initialize accelleration device
+//     ret = __lsmAcellInit();
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "lsm303agr acell init error %d", ret);
+//         return ret;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
-// initialize lsm303 magnetometre
-int __lsmMagInit()
-{
-    // Check mag device address
-    uint8_t whoamI = 0;
-    lsm303agr_mag_device_id_get(&dev_ctx_mg, &whoamI);
-    if (whoamI != LSM303AGR_ID_MG)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "init lsm303agr accell fail got address: %d", whoamI);
-        return -1;
-    }
+// // initialize lsm303 magnetometre
+// int __lsmMagInit()
+// {
+//     // Check mag device address
+//     uint8_t whoamI = 0;
+//     lsm303agr_mag_device_id_get(&dev_ctx_mg, &whoamI);
+//     if (whoamI != LSM303AGR_ID_MG)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "init lsm303agr accell fail got address: %d", whoamI);
+//         return -1;
+//     }
 
-    /* Restore default configuration for magnetometer */
-    esp_err_t ret = lsm303agr_mag_reset_set(&dev_ctx_mg, PROPERTY_ENABLE);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to reset mag, ret = %d", ret);
-        return ret;
-    }
+//     /* Restore default configuration for magnetometer */
+//     esp_err_t ret = lsm303agr_mag_reset_set(&dev_ctx_mg, PROPERTY_ENABLE);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to reset mag, ret = %d", ret);
+//         return ret;
+//     }
 
-    do
-    {
-        lsm303agr_mag_reset_get(&dev_ctx_mg, &lsm_mag_rst);
-    } while (lsm_mag_rst);
+//     do
+//     {
+//         lsm303agr_mag_reset_get(&dev_ctx_mg, &lsm_mag_rst);
+//     } while (lsm_mag_rst);
 
-    ret = lsm303agr_mag_block_data_update_set(&dev_ctx_mg, PROPERTY_ENABLE);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set mag block data update, ret = %d", ret);
-        return ret;
-    }
+//     ret = lsm303agr_mag_block_data_update_set(&dev_ctx_mg, PROPERTY_ENABLE);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set mag block data update, ret = %d", ret);
+//         return ret;
+//     }
 
-    /* Set Output Data Rate */
-    ret = lsm303agr_mag_data_rate_set(&dev_ctx_mg, LSM303AGR_MG_ODR_10Hz);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set data rate, ret = %d", ret);
-        return ret;
-    }
-    /* Set accelerometer full scale */
-    /* Set / Reset magnetic sensor mode */
-    ret = lsm303agr_mag_set_rst_mode_set(&dev_ctx_mg,
-                                         LSM303AGR_SENS_OFF_CANC_EVERY_ODR);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set reset mode, ret = %d", ret);
-        return ret;
-    }
-    /* Enable temperature compensation on mag sensor */
-    ret = lsm303agr_mag_offset_temp_comp_set(&dev_ctx_mg, PROPERTY_ENABLE);
+//     /* Set Output Data Rate */
+//     ret = lsm303agr_mag_data_rate_set(&dev_ctx_mg, LSM303AGR_MG_ODR_10Hz);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set data rate, ret = %d", ret);
+//         return ret;
+//     }
+//     /* Set accelerometer full scale */
+//     /* Set / Reset magnetic sensor mode */
+//     ret = lsm303agr_mag_set_rst_mode_set(&dev_ctx_mg,
+//                                          LSM303AGR_SENS_OFF_CANC_EVERY_ODR);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set reset mode, ret = %d", ret);
+//         return ret;
+//     }
+//     /* Enable temperature compensation on mag sensor */
+//     ret = lsm303agr_mag_offset_temp_comp_set(&dev_ctx_mg, PROPERTY_ENABLE);
 
-    /* Enable temperature sensor */
-    /* Set device in continuous mode */
-    /* Set magnetometer in continuous mode */
-    ret = lsm303agr_mag_operating_mode_set(&dev_ctx_mg,
-                                           LSM303AGR_CONTINUOUS_MODE);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set mag operating mode, ret = %d", ret);
-        return ret;
-    }
+//     /* Enable temperature sensor */
+//     /* Set device in continuous mode */
+//     /* Set magnetometer in continuous mode */
+//     ret = lsm303agr_mag_operating_mode_set(&dev_ctx_mg,
+//                                            LSM303AGR_CONTINUOUS_MODE);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set mag operating mode, ret = %d", ret);
+//         return ret;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
-int __lsmAcellInit()
-{
-    // Check accell device address
-    uint8_t whoamI = 0;
-    lsm303agr_xl_device_id_get(&dev_ctx_xl, &whoamI);
-    if (whoamI != LSM303AGR_ID_XL)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "init lsm303agr accell fail got address: %d", whoamI);
-        return -1;
-    }
+// int __lsmAcellInit()
+// {
+//     // Check accell device address
+//     uint8_t whoamI = 0;
+//     lsm303agr_xl_device_id_get(&dev_ctx_xl, &whoamI);
+//     if (whoamI != LSM303AGR_ID_XL)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "init lsm303agr accell fail got address: %d", whoamI);
+//         return -1;
+//     }
 
-    /* Enable Block Data Update */
-    esp_err_t ret = lsm303agr_xl_block_data_update_set(&dev_ctx_xl, PROPERTY_ENABLE);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set block data update, ret = %d", ret);
-        return ret;
-    }
+//     /* Enable Block Data Update */
+//     esp_err_t ret = lsm303agr_xl_block_data_update_set(&dev_ctx_xl, PROPERTY_ENABLE);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set block data update, ret = %d", ret);
+//         return ret;
+//     }
 
-    /* Set Output Data Rate */
-    ret = lsm303agr_xl_data_rate_set(&dev_ctx_xl, LSM303AGR_XL_ODR_100Hz);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set data rate, ret = %d", ret);
-        return ret;
-    }
+//     /* Set Output Data Rate */
+//     ret = lsm303agr_xl_data_rate_set(&dev_ctx_xl, LSM303AGR_XL_ODR_100Hz);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set data rate, ret = %d", ret);
+//         return ret;
+//     }
 
-    /* Set accelerometer full scale */
-    ret = lsm303agr_xl_full_scale_set(&dev_ctx_xl, LSM303AGR_2g);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to set accell full scale, ret = %d", ret);
-        return ret;
-    }
+//     /* Set accelerometer full scale */
+//     ret = lsm303agr_xl_full_scale_set(&dev_ctx_xl, LSM303AGR_2g);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to set accell full scale, ret = %d", ret);
+//         return ret;
+//     }
 
-    /* Enable temperature sensor */
-    ret = lsm303agr_temperature_meas_set(&dev_ctx_xl, LSM303AGR_TEMP_ENABLE);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to get acell status, ret = %d", ret);
-        return ret;
-    }
+//     /* Enable temperature sensor */
+//     ret = lsm303agr_temperature_meas_set(&dev_ctx_xl, LSM303AGR_TEMP_ENABLE);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to get acell status, ret = %d", ret);
+//         return ret;
+//     }
 
-    /* Set device in continuous mode */
-    ret = lsm303agr_xl_operating_mode_set(&dev_ctx_xl, LSM303AGR_HR_12bit);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "unable to get acell status, ret = %d", ret);
-        return ret;
-    }
-    return 0;
-}
+//     /* Set device in continuous mode */
+//     ret = lsm303agr_xl_operating_mode_set(&dev_ctx_xl, LSM303AGR_HR_12bit);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "unable to get acell status, ret = %d", ret);
+//         return ret;
+//     }
+//     return 0;
+// }
 
-int lsmAccellDataReady()
-{
-    uint8_t ret = lsm303agr_xl_status_get(&dev_ctx_xl, &reg.status_reg_a);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "lsm accell status check failed, ret = %d", ret);
-        return -1;
-    }
-    return reg.status_reg_a.zyxda;
-}
+// int lsmAccellDataReady()
+// {
+//     uint8_t ret = lsm303agr_xl_status_get(&dev_ctx_xl, &reg.status_reg_a);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "lsm accell status check failed, ret = %d", ret);
+//         return -1;
+//     }
+//     return reg.status_reg_a.zyxda;
+// }
 
-int lsmMagDataReady()
-{
-    uint8_t ret = lsm303agr_mag_status_get(&dev_ctx_mg, &reg.status_reg_m);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "lsm mag status check failed, ret = %d", ret);
-        return -1;
-    }
-    return reg.status_reg_m.zyxda;
-}
+// int lsmMagDataReady()
+// {
+//     uint8_t ret = lsm303agr_mag_status_get(&dev_ctx_mg, &reg.status_reg_m);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "lsm mag status check failed, ret = %d", ret);
+//         return -1;
+//     }
+//     return reg.status_reg_m.zyxda;
+// }
 
-int lsmReadAcellData(int16_t *data_raw_acceleration, float *acceleration_mg)
-{
+// int lsmReadAcellData(int16_t *data_raw_acceleration, float *acceleration_mg)
+// {
 
-    // check raw accelleration has enough size
-    uint8_t ret = __checkMinimumArraySize(data_raw_acceleration, 3);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "raw data array is not of suffecient length");
-        return -1;
-    }
+//     // check raw accelleration has enough size
+//     uint8_t ret = __checkMinimumArraySize(data_raw_acceleration, 3);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "raw data array is not of suffecient length");
+//         return -1;
+//     }
 
-    ret = __checkMinimumArraySize(acceleration_mg, 3);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "acell data array is not of suffecient length");
-        return -1;
-    }
+//     ret = __checkMinimumArraySize(acceleration_mg, 3);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "acell data array is not of suffecient length");
+//         return -1;
+//     }
 
-    // reset raw data memory
-    memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
-    ret = lsm303agr_acceleration_raw_get(&dev_ctx_xl, data_raw_acceleration);
-    if (ret != 0)
-    {
-        ESP_LOGI(LSM_IMPL_TAG, "lsm unable to get raw data, ret = %d", ret);
-        return -1;
-    }
+//     // reset raw data memory
+//     memset(data_raw_acceleration, 0x00, 3 * sizeof(int16_t));
+//     ret = lsm303agr_acceleration_raw_get(&dev_ctx_xl, data_raw_acceleration);
+//     if (ret != 0)
+//     {
+//         ESP_LOGI(LSM_IMPL_TAG, "lsm unable to get raw data, ret = %d", ret);
+//         return -1;
+//     }
 
-    acceleration_mg[0] = lsm303agr_from_fs_2g_hr_to_mg(
-        data_raw_acceleration[0]);
-    acceleration_mg[1] = lsm303agr_from_fs_2g_hr_to_mg(
-        data_raw_acceleration[1]);
-    acceleration_mg[2] = lsm303agr_from_fs_2g_hr_to_mg(
-        data_raw_acceleration[2]);
+//     acceleration_mg[0] = lsm303agr_from_fs_2g_hr_to_mg(
+//         data_raw_acceleration[0]);
+//     acceleration_mg[1] = lsm303agr_from_fs_2g_hr_to_mg(
+//         data_raw_acceleration[1]);
+//     acceleration_mg[2] = lsm303agr_from_fs_2g_hr_to_mg(
+//         data_raw_acceleration[2]);
 
-    return 0;
-}
+//     return 0;
+// }
 
 // checkMinimumArraySize checks that the array is atleast minimumLength items long
 int __checkMinimumArraySize(void *array, uint8_t minimumLength)
