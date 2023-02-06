@@ -1,94 +1,31 @@
-#include "esp_log.h"
-#include "esp_ota_ops.h"
-#include "gap.h"
-#include "gatt_svr.h"
 #include "nvs_flash.h"
-#include "esp_bt.h"
-#include "driver/gpio.h"
+#include "application/ota/ota.h"
+#include "freertos/FreeRTOS.h"
+#include "esp_system.h"
 
-/*
-  Custom component includes
-*/
-#include "valiturus_button.h"
-#include "valiturus_led.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+#include "esp_bt.h"
+#include "esp_err.h"
+#include "esp_pm.h"
+
+// bluetooth part of the application
+#include "application/bluetooth/bluetooth.h"
 
 #define LOG_TAG_MAIN "main"
 
-int tickCount = 0;
-
-/*
-  button interrupt handler
-*/
-static void IRAM_ATTR button_interrupt_handler(void *args)
-{
-  tickCount++;
-}
-
-bool run_diagnostics()
-{
-  // do some diagnostics
-  return true;
-}
-
-// LED_Control_Task
-void LED_Control_Task(void *params)
-{
-  bool level = false;
-
-  while (1)
-  {
-    vTaskDelay(portTICK_PERIOD_MS * 100);
-    ESP_LOGI(LOG_TAG_MAIN, "New app with blink");
-    ESP_LOGI(LOG_TAG_MAIN, "tick count %d", tickCount);
-
-    level = !level;
-    valiturus_led_set_level(level);
-  }
-}
-
 void app_main(void)
 {
-  // check which partition is running
-  const esp_partition_t *partition = esp_ota_get_running_partition();
+  ota_app_init();
 
-  switch (partition->address)
-  {
-  case 0x00010000:
-    ESP_LOGI(LOG_TAG_MAIN, "Running partition: factory");
-    break;
-  case 0x00110000:
-    ESP_LOGI(LOG_TAG_MAIN, "Running partition: ota_0");
-    break;
-  case 0x00210000:
-    ESP_LOGI(LOG_TAG_MAIN, "Running partition: ota_1");
-    break;
-
-  default:
-    ESP_LOGE(LOG_TAG_MAIN, "Running partition: unknown");
-    break;
-  }
-
-  // check if an OTA has been done, if so run diagnostics
-  esp_ota_img_states_t ota_state;
-  if (esp_ota_get_state_partition(partition, &ota_state) == ESP_OK)
-  {
-    if (ota_state == ESP_OTA_IMG_PENDING_VERIFY)
-    {
-      ESP_LOGI(LOG_TAG_MAIN, "An OTA update has been detected.");
-      if (run_diagnostics())
-      {
-        ESP_LOGI(LOG_TAG_MAIN,
-                 "Diagnostics completed successfully! Continuing execution.");
-        esp_ota_mark_app_valid_cancel_rollback();
-      }
-      else
-      {
-        ESP_LOGE(LOG_TAG_MAIN,
-                 "Diagnostics failed! Start rollback to the previous version.");
-        esp_ota_mark_app_invalid_rollback_and_reboot();
-      }
-    }
-  }
+  // enable light sleep
+  esp_pm_config_esp32c3_t pm_config = {
+      .max_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ, // e.g. 80, 160, 240
+      .min_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ, // e.g. 40
+      .light_sleep_enable = true,                      // enable light sleep
+  };
+  ESP_ERROR_CHECK(esp_pm_configure(&pm_config));
 
   // Initialize NVS
   esp_err_t ret = nvs_flash_init();
@@ -100,32 +37,40 @@ void app_main(void)
   }
   ESP_ERROR_CHECK(ret);
 
-  // BLE Setup
-  esp_bt_mem_release(ESP_BT_MODE_BTDM);
+  bluetooth_init();
+  /*
+    TODO -
 
-  // initialize BLE controller and nimble stack
-  esp_nimble_hci_and_controller_init();
-  nimble_port_init();
+  */
 
-  // register sync and reset callbacks
-  ble_hs_cfg.sync_cb = sync_cb;
-  ble_hs_cfg.reset_cb = reset_cb;
+  // !!!!!!!!!!!!!!!!!!!!
+  // TODO
+  // run diagnostics and rollback if image fails to update
+  // rollback_image();
+  // verify_image();
 
-  // initialize service table
-  gatt_svr_init();
+  vTaskDelay(200 * portTICK_PERIOD_MS);
+  // ESP_LOGI(LOG_TAG_MAIN, "setting power");
 
-  // set device name and start host task
-  ble_svc_gap_device_name_set(device_name);
-  nimble_port_freertos_init(host_task);
+  // // current pwoer
+  // esp_power_level_t power = esp_ble_tx_power_get(ESP_BLE_PWR_TYPE_DEFAULT);
 
-  ESP_LOGI(LOG_TAG_MAIN, "initing LED");
-  gpio_reset_pin(GPIO_NUM_19);
-  valiturus_led_init();
+  // ESP_LOGI(LOG_TAG_MAIN, "power before: %d", power);
 
-  ESP_LOGI(LOG_TAG_MAIN, "init button");
-  gpio_reset_pin(GPIO_NUM_18);
-  valiturus_button_init(button_interrupt_handler);
+  // // set ble tx power to 6dm
+  // esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_N15);
 
-  // init tasks
-  xTaskCreate(LED_Control_Task, "LED_Control_Task", 2048, NULL, 1, NULL);
+  // vTaskDelay(100 * portTICK_PERIOD_MS);
+  // power = esp_ble_tx_power_get(ESP_BLE_PWR_TYPE_DEFAULT);
+
+  // ESP_LOGI(LOG_TAG_MAIN, "power before: %d", power);
 }
+
+/*
+
+  NOTES:
+
+    Increasing tx power to 21dBm causes the device to brownout. This is because it uses much more instaneous power and my 
+    hardware is not good enough for that. :(
+
+*/
