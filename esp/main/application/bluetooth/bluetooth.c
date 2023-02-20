@@ -21,25 +21,30 @@
 */
 
 #define BLE_OTA_EXAMPLE_TAG "BLE_OTA_EXAMPLE"
+/*
 
+  NOTES:
+
+    Increasing tx power to 21dBm causes the device to brownout. This is because it uses much more instaneous power and my
+    hardware is not good enough for that. :(
+
+*/
 void bluetooth_init()
 {
-    // BLE Setup
-    esp_bt_mem_release(ESP_BT_MODE_BTDM);
+  // BLE Setup
+  esp_bt_mem_release(ESP_BT_MODE_BTDM);
 
-    // initialize BLE controller and nimble stack
-    nimble_port_init();
+  // initialize BLE controller and nimble stack
+  nimble_port_init();
 
-    // register sync and reset callbacks
-    ble_hs_cfg.sync_cb = sync_cb;
-    ble_hs_cfg.reset_cb = reset_cb;
+  // register sync and reset callbacks
+  ble_hs_cfg.sync_cb = sync_cb;
+  ble_hs_cfg.reset_cb = reset_cb;
 
-    // initialize service table
-    gatt_svr_init();
+  // initialize service table
+  gatt_svr_init();
 
-    // set device name and start host task
-    ble_svc_gap_device_name_set(device_name);
-    nimble_port_freertos_init(host_task);
-
-
+  // set device name and start host task
+  ble_svc_gap_device_name_set(device_name);
+  nimble_port_freertos_init(host_task);
 }

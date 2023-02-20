@@ -10,13 +10,24 @@
 #include "esp_err.h"
 #include "esp_pm.h"
 
+#include "valiturus_battery.h"
+
 // bluetooth part of the application
 #include "application/bluetooth/bluetooth.h"
+
+#include "application/protobuf/algorithim/Algorithim.pb.h"
 
 #define LOG_TAG_MAIN "main"
 
 void app_main(void)
 {
+
+  // rolling algorithim
+  RollingAlgorithim rolling = {};
+
+  // algo config
+  AlgorithimConfiguration algoConfig = {};
+
   ota_app_init();
 
   // enable light sleep
@@ -43,34 +54,28 @@ void app_main(void)
 
   */
 
+  valiturus_battery_init();
+
   // !!!!!!!!!!!!!!!!!!!!
   // TODO
   // run diagnostics and rollback if image fails to update
   // rollback_image();
-  // verify_image();
 
-  vTaskDelay(200 * portTICK_PERIOD_MS);
-  // ESP_LOGI(LOG_TAG_MAIN, "setting power");
+  vTaskDelay(100 / portTICK_PERIOD_MS);
+  verify_image();
 
-  // // current pwoer
-  // esp_power_level_t power = esp_ble_tx_power_get(ESP_BLE_PWR_TYPE_DEFAULT);
+  while (1)
+  {
+    valiturus_battery_measure();
+    // print out every 5 minutes
+    vTaskDelay(pdMS_TO_TICKS(60000));
+    vTaskDelay(pdMS_TO_TICKS(60000));
+    vTaskDelay(pdMS_TO_TICKS(60000));
+    vTaskDelay(pdMS_TO_TICKS(60000));
+    vTaskDelay(pdMS_TO_TICKS(60000));
+  }
 
-  // ESP_LOGI(LOG_TAG_MAIN, "power before: %d", power);
+  valiturus_battery_deinit();
 
-  // // set ble tx power to 6dm
-  // esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_N15);
-
-  // vTaskDelay(100 * portTICK_PERIOD_MS);
-  // power = esp_ble_tx_power_get(ESP_BLE_PWR_TYPE_DEFAULT);
-
-  // ESP_LOGI(LOG_TAG_MAIN, "power before: %d", power);
 }
 
-/*
-
-  NOTES:
-
-    Increasing tx power to 21dBm causes the device to brownout. This is because it uses much more instaneous power and my 
-    hardware is not good enough for that. :(
-
-*/

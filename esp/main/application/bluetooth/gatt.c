@@ -5,6 +5,9 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "ota_gatt_service.h"
+#include "messaging_gatt_service.h"
+#include "messaging_gatt_service.c"
+
 /*
     Application code that implements bluetooth functionality
 */
@@ -28,10 +31,14 @@ static int gatt_svr_chr_access_device_info(uint16_t conn_handle,
                                            struct ble_gatt_access_ctxt *ctxt,
                                            void *arg);
 
-// Handles defined in bluetooth_ota source
+// Handles defined in ota_gatt_service source
 extern uint16_t ota_control_val_handle;
 extern uint16_t ota_data_val_handle;
 extern uint16_t ota_apply_update_val_handle;
+
+// Handles defined in messaging_gatt_service source
+extern uint16_t messaging_control_val_handle;
+extern uint16_t messaging_data_val_handle;
 
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     {// Service: Device Information
@@ -93,8 +100,30 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 }},
     },
 
+    // service: messaging
     {
-        0,
+        .type = BLE_GATT_SVC_TYPE_PRIMARY,
+        .uuid = &gatt_svr_svc_messaging_uuid.u,
+        .characteristics = (struct ble_gatt_chr_def[]){
+            // {
+            //     // characteristic: OTA control
+            //     .access_cb = gatt_svr_chr_ota_control_cb,
+            //     .uuid = &gatt_svr_chr_messaging_control_uuid.u,
+            //     .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE |
+            //              BLE_GATT_CHR_F_NOTIFY,
+            //     .val_handle = &ota_control_val_handle,
+            // },
+            {
+                // characteristic: OTA data
+                .uuid = &gatt_svr_chr_messaging_data_uuid.u,
+                .access_cb = gatt_svr_chr_messaging_data_cb,
+                .flags = BLE_GATT_CHR_F_WRITE,
+                .val_handle = &messaging_data_val_handle,
+            },
+            {
+                0,
+            },
+        },
     },
 };
 

@@ -103,6 +103,87 @@ void delay(uint32_t period)
     vTaskDelay(period / portTICK_PERIOD_MS);
 }
 
+/* An example for updating manual offsets to sensor */
+/*
+
+    user promted to press the button while standing still
+
+
+    gyro offsets
+    accell offsets
+*/
+int8_t write_offsets(struct bmi160_dev *dev)
+{
+    int8_t rslt = 0;
+    /* FOC configuration structure */
+    struct bmi160_foc_conf foc_conf;
+    /* Structure to store the offsets */
+    struct bmi160_offsets offsets;
+
+    /* Enable offset update for accel */
+    foc_conf.acc_off_en = BMI160_ENABLE;
+
+    /* Enable offset update for gyro */
+    foc_conf.gyro_off_en = BMI160_ENABLE;
+
+    /* offset values set by user */
+    offsets.off_acc_x = 0x10;
+    offsets.off_acc_y = 0x10;
+    offsets.off_acc_z = 0x10;
+    offsets.off_gyro_x = 0x10;
+    offsets.off_gyro_y = 0x10;
+    offsets.off_gyro_z = 0x10;
+
+    rslt = bmi160_set_offsets(&foc_conf, &offsets, dev);
+
+    /* After offset setting the data read from the
+     * sensor will have the corresponding offset */
+
+    return rslt;
+}
+
+/*
+
+ this sets foc (fast offset calibration).
+ This is a method for determining o
+
+*/
+int8_t start_foc(struct bmi160_dev *dev)
+{
+    int8_t rslt = 0;
+    /* FOC configuration structure */
+    struct bmi160_foc_conf foc_conf;
+    /* Structure to store the offsets */
+    struct bmi160_offsets offsets;
+
+    /* Enable FOC for accel with target values of z = 1g ; x,y as 0g */
+    foc_conf.acc_off_en = BMI160_ENABLE;
+    foc_conf.foc_acc_x = BMI160_FOC_ACCEL_0G;
+    foc_conf.foc_acc_y = BMI160_FOC_ACCEL_0G;
+    foc_conf.foc_acc_z = BMI160_FOC_ACCEL_POSITIVE_G;
+
+    /* Enable FOC for gyro */
+    foc_conf.foc_gyr_en = BMI160_ENABLE;
+    foc_conf.gyro_off_en = BMI160_ENABLE;
+
+    rslt = bmi160_start_foc(&foc_conf, &offsets, dev);
+
+    if (rslt == BMI160_OK)
+    {
+        printf("\n FOC DONE SUCCESSFULLY ");
+        printf("\n OFFSET VALUES AFTER FOC : ");
+        printf("\n OFFSET VALUES ACCEL X : %d ", offsets.off_acc_x);
+        printf("\n OFFSET VALUES ACCEL Y : %d ", offsets.off_acc_y);
+        printf("\n OFFSET VALUES ACCEL Z : %d ", offsets.off_acc_z);
+        printf("\n OFFSET VALUES GYRO  X : %d ", offsets.off_gyro_x);
+        printf("\n OFFSET VALUES GYRO  Y : %d ", offsets.off_gyro_y);
+        printf("\n OFFSET VALUES GYRO  Z : %d ", offsets.off_gyro_z);
+    }
+
+    /* After start of FOC offsets will be updated automatically and
+     * the data will be very much close to the target values of measurement */
+}
+
 void init_bmi160(void)
 {
     int8_t rslt;

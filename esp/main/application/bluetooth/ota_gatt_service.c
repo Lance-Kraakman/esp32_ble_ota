@@ -178,10 +178,6 @@ void update_ota_control(uint16_t conn_handle)
     }
 }
 
-/*
-  This callback that is called when OTA data charactaristic is requested for the OTA service.
-  note: this function is static so all variables are initized only once and last for the lifetime of the application
-*/
 int gatt_svr_chr_ota_data_cb(uint16_t conn_handle, uint16_t attr_handle,
                              struct ble_gatt_access_ctxt *ctxt,
                              void *arg)

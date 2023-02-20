@@ -10,6 +10,8 @@ set(MAIN_REQUIRES
     bmi160Impl
     lsm303agr-pid
     lsm303agrImpl
+    protobuf
+    valiturus_battery
 )
 
 set(CPACK_SOURCE_IGNORE_FILES "examples/*")
@@ -29,6 +31,7 @@ set(MAIN_SRCS
     "application/bluetooth/gatt.c"
     "application/bluetooth/gap.c"
     "application/bluetooth/ota_gatt_service.c"
+    "application/protobuf/algorithim/Algorithim.pb.c"
     )
 
 idf_component_register(SRCS ${MAIN_SRCS} 

@@ -13,6 +13,9 @@
         "xiosbase": "c",
         "ble_svc_gap.h": "c",
         "esp_ota_ops.h": "c",
-        "ble_hs.h": "c"
+        "ble_hs.h": "c",
+        "algorithim.pb.h": "c",
+        "messaging_gatt_service.h": "c",
+        "algorithm": "c"
     }
 }

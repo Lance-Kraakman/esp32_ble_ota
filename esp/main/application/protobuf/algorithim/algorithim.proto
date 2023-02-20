@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message Exercise { uint32 id = 1; }
+
+enum AlgorithimType {
+  INTERVAL = 0;
+  TIMED = 1;
+}
+
+message RollingAlgorithim {
+
+}
+
+message AlgorithimConfiguration {
+  oneof algorithim {
+    RollingAlgorithim rolling = 1;
+  }
+}
