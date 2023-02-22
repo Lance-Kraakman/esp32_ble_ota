@@ -1,6 +1,5 @@
-
-#ifndef BMI160IMPL_H_
-#define BMI160IMPL_H_
+#ifndef BMISENSOR_H_
+#define BMISENSOR_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -64,4 +63,4 @@ extern "C"
 }
 #endif
 
-#endif /* BMI160_H_ */
+#endif /* BMISENSOR_H_ */

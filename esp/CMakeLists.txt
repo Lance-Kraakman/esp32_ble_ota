@@ -3,6 +3,8 @@
 cmake_minimum_required(VERSION 3.5)
 set(IDF_TARGET "esp32c3")
 set(PROJECT_VER "1.0")
+
+set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(esp)
 

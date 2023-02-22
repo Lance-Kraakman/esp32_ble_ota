@@ -16,6 +16,9 @@
         "ble_hs.h": "c",
         "algorithim.pb.h": "c",
         "messaging_gatt_service.h": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "esp_http_server.h": "c",
+        "bmi160impl.h": "c",
+        "bmi160_defs.h": "c"
     }
 }

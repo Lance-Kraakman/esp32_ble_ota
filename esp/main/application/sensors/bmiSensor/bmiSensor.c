@@ -1,4 +1,5 @@
-#include "bmi160Impl.h"
+#include "bmiSensor.h"
+#include "freertos/FreeRTOS.h"
 
 int8_t write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *read_data, uint16_t len)
 {
@@ -182,8 +183,15 @@ int8_t start_foc(struct bmi160_dev *dev)
 
     /* After start of FOC offsets will be updated automatically and
      * the data will be very much close to the target values of measurement */
+
+    return rslt;
 }
 
+/*
+
+    defaut
+
+*/
 void init_bmi160(void)
 {
     int8_t rslt;
@@ -203,7 +211,7 @@ void init_bmi160(void)
     }
 
     /* Select the Output data rate, range of accelerometer sensor */
-    bmi160dev.accel_cfg.odr = BMI160_ACCEL_ODR_1600HZ;
+    bmi160dev.accel_cfg.odr = BMI160_ACCEL_ODR_200HZ;
     bmi160dev.accel_cfg.range = BMI160_ACCEL_RANGE_16G;
     bmi160dev.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
 
@@ -211,7 +219,7 @@ void init_bmi160(void)
     bmi160dev.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
 
     /* Select the Output data rate, range of Gyroscope sensor */
-    bmi160dev.gyro_cfg.odr = BMI160_GYRO_ODR_3200HZ;
+    bmi160dev.gyro_cfg.odr = BMI160_GYRO_ODR_200HZ;
     bmi160dev.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
     bmi160dev.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
 
