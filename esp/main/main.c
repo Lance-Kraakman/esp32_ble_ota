@@ -53,27 +53,27 @@ void app_main(void)
 
   */
 
-  valiturus_battery_init();
+  // valiturus_battery_init();
 
-  // !!!!!!!!!!!!!!!!!!!!
-  // TODO
-  // run diagnostics and rollback if image fails to update
-  // rollback_image();
+  // // !!!!!!!!!!!!!!!!!!!!
+  // // TODO
+  // // run diagnostics and rollback if image fails to update
+  // // rollback_image();
 
-  vTaskDelay(100 / portTICK_PERIOD_MS);
-  verify_image();
+  // vTaskDelay(100 / portTICK_PERIOD_MS);
+  // verify_image();
 
-  while (1)
-  {
-    valiturus_battery_measure();
-    // print out every 5 minutes
-    vTaskDelay(pdMS_TO_TICKS(60000));
-    vTaskDelay(pdMS_TO_TICKS(60000));
-    vTaskDelay(pdMS_TO_TICKS(60000));
-    vTaskDelay(pdMS_TO_TICKS(60000));
-    vTaskDelay(pdMS_TO_TICKS(60000));
-  }
+  // while (1)
+  // {
+  //   valiturus_battery_measure();
+  //   // print out every 5 minutes
+  //   vTaskDelay(pdMS_TO_TICKS(60000));
+  //   vTaskDelay(pdMS_TO_TICKS(60000));
+  //   vTaskDelay(pdMS_TO_TICKS(60000));
+  //   vTaskDelay(pdMS_TO_TICKS(60000));
+  //   vTaskDelay(pdMS_TO_TICKS(60000));
+  // }
 
-  valiturus_battery_deinit();
+  // valiturus_battery_deinit();
 
 }

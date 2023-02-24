@@ -6,14 +6,6 @@ set(CPACK_SOURCE_IGNORE_FILES "examples/*")
 set(MAIN_SRCS
     "${MAIN_SRCS}"
     "main.c"
-
-    # REMOVE EXAMPEL SOURCES AS GET LINKER CONFLICTS
-    # "examples/lsm303agr_example/lsm303agr_example.c"
-    # "examples/button_led_example/button_led_example.c"
-    # "examples/ble_ota_example/ble_ota_example.c"
-    # "examples/ble_ota_example/gatt_svr.c"
-    # "examples/ble_ota_example/gap.c"
-    # "examples/bmi_160_example/bmi_160_example.c"
     "application/sensors/bmiSensor/bmiTasks.c"
     "application/exercise/exercise.c"
     "application/ota/ota.c"
