@@ -1,6 +1,6 @@
 #include "esp_log.h"
-#include "gap.h"
-#include "gatt.h"
+#include "gatt/gap.h"
+#include "gatt/gatt.h"
 #include "esp_bt.h"
 
 #include "host/ble_hs.h"
@@ -8,6 +8,18 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
+
+#include "bluetooth.h"
+#include "gatt/messaging_gatt_service.h"
+
+#include "gatt/gatt.h"
+
+/*
+  This file is for PUBLIC methods/interfacing the bluetooth application folder with the application.
+  Functions that 
+*/
+
+
 
 /*
   A GATT service is a collection of charactarstics.
@@ -19,7 +31,6 @@
       characteristic reads, characteristic writes, notifications and indications.
 
 */
-
 #define BLE_OTA_EXAMPLE_TAG "BLE_OTA_EXAMPLE"
 /*
 
@@ -29,8 +40,21 @@
     hardware is not good enough for that. :(
 
 */
-void bluetooth_init()
+
+// need to consider how memory will be effected on both sides....
+
+// this is fine
+typedef struct {
+  char *buffer;
+  int bufferLength;
+  // bool lock; maybe in the future add a data lock
+  // anybody using this data must use it straight away, which is really dangerous 
+} messageData;
+
+// message received callback is called when a message has been received 
+void bluetooth_init(void (*bytesReceivedCallback)(messageData receivingData), void (*sendBytesCallback)(messageData sendingData))
 {
+
   // BLE Setup
   esp_bt_mem_release(ESP_BT_MODE_BTDM);
 
@@ -47,4 +71,9 @@ void bluetooth_init()
   // set device name and start host task
   ble_svc_gap_device_name_set(device_name);
   nimble_port_freertos_init(host_task);
+}
+
+// notify_message_ready notifies the client that there is a message ready
+void notify_message_ready() {
+  _notify_message_ready();
 }

@@ -7,12 +7,17 @@ enum AlgorithimType {
   TIMED = 1;
 }
 
-message RollingAlgorithim {
-
-}
+message RollingAlgorithim {}
 
 message AlgorithimConfiguration {
-  oneof algorithim {
+  oneof algorithim { RollingAlgorithim rolling = 1; }
+}
+
+
+// // TransferMessage type is transfered across 
+message Transfer {
+  oneof message {
     RollingAlgorithim rolling = 1;
+    Exercise exercise = 2;
   }
 }

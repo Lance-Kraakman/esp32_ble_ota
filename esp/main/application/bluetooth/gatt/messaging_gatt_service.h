@@ -7,13 +7,14 @@
 extern "C"
 {
 #endif
-    int gatt_svr_chr_messaging_data_cb(uint16_t conn_handle, uint16_t attr_handle,
+    int gatt_svr_chr_messaging_input_stream_cb(uint16_t conn_handle, uint16_t attr_handle,
                                        struct ble_gatt_access_ctxt *ctxt,
                                        void *arg);
 
-    int gatt_svr_chr_messaging_control_cb(uint16_t conn_handle, uint16_t attr_handle,
-                                       struct ble_gatt_access_ctxt *ctxt,
-                                       void *arg);
+    int gatt_svr_chr_messaging_output_stream_cb(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);
+
+    void _notify_message_ready();
+
 
 #ifdef __cplusplus
 }

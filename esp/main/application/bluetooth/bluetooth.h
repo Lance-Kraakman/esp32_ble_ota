@@ -6,8 +6,9 @@ extern "C"
 {
 #endif
     void bluetooth_init();
+    void notify_message_ready();
 #ifdef __cplusplus
 }
 #endif
 
-#endif // !BLUETOOTH_H_
+#endif // !BLUETOOTH_API_H_

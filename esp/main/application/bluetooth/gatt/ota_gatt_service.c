@@ -16,6 +16,9 @@ uint16_t ota_control_val_handle;
 uint16_t ota_data_val_handle;
 uint16_t ota_apply_update_val_handle;
 
+void update_ota_control(uint16_t conn_handle);
+void update_app_partition(uint16_t conn_handle);
+
 const esp_partition_t *update_partition;
 esp_ota_handle_t update_handle;
 bool updating = false;
@@ -38,6 +41,89 @@ ota_update_context ota_context = {
 
 static bool updateAvailable = UNAVAILABLE;
 static int app_partition_update_status = NONE_ATTEMPTED;
+
+int gatt_svr_chr_ota_data_cb(uint16_t conn_handle, uint16_t attr_handle,
+                             struct ble_gatt_access_ctxt *ctxt,
+                             void *arg)
+{
+    static int rc;
+    static esp_err_t err;
+
+    // store the received data into gatt_svr_chr_ota_data_val
+    rc = gatt_svr_chr_write(ctxt->om, 1, sizeof(gatt_svr_chr_ota_data_val),
+                            gatt_svr_chr_ota_data_val, NULL);
+
+    // write the received packet to the partition
+    if (updating)
+    {
+        err = esp_ota_write(update_handle, (const void *)gatt_svr_chr_ota_data_val,
+                            ota_context.packet_size);
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(BLUETOOTH_OTA_TAG, "esp_ota_write failed (%s)!",
+                     esp_err_to_name(err));
+        }
+
+        ota_context.num_pkgs_received++;
+        ESP_LOGI(BLUETOOTH_OTA_TAG, "Received packet %d", ota_context.num_pkgs_received);
+    }
+
+    return rc;
+}
+
+/*
+  This callback is applied when a user has applied the
+*/
+int gatt_svr_chr_ota_apply_update(uint16_t conn_handle, uint16_t attr_handle,
+                                  struct ble_gatt_access_ctxt *ctxt,
+                                  void *arg)
+{
+
+    ESP_LOGI(LOG_TAG_GATT_SVR, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+    // todo - return and handle error
+    update_app_partition(conn_handle);
+    return 0;
+}
+
+/*
+  This callback that is called when OTA control charactaristic is requested for the OTA service.
+  note: this function is static so all variables are initized only once and last for the lifetime of the application
+*/
+int gatt_svr_chr_ota_control_cb(uint16_t conn_handle,
+                                uint16_t attr_handle,
+                                struct ble_gatt_access_ctxt *ctxt,
+                                void *arg)
+{
+    static int rc;
+    static int8_t length = sizeof(gatt_svr_chr_ota_control_val);
+
+    // Here is where we set the control value based on the request from the client, so we should do something similar!
+    switch (ctxt->op)
+    {
+    case BLE_GATT_ACCESS_OP_READ_CHR:
+        // a client is reading the current value of ota control
+        rc = os_mbuf_append(ctxt->om, &gatt_svr_chr_ota_control_val, length);
+        return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+        break;
+
+    case BLE_GATT_ACCESS_OP_WRITE_CHR:
+        // a client is writing a value to ota control
+        rc = gatt_svr_chr_write(ctxt->om, 1, length,
+                                &gatt_svr_chr_ota_control_val, NULL);
+        // update the OTA state with the new value
+        update_ota_control(conn_handle);
+        return rc;
+        break;
+
+    default:
+        break;
+    }
+
+    // this shouldn't happen
+    assert(0);
+    return BLE_ATT_ERR_UNLIKELY;
+}
 
 // updating the app partition should only be done if esp_ota is success
 void update_app_partition(uint16_t conn_handle)
@@ -86,6 +172,7 @@ void update_app_partition(uint16_t conn_handle)
         esp_restart();
     }
 }
+
 
 void update_ota_control(uint16_t conn_handle)
 {
@@ -176,87 +263,4 @@ void update_ota_control(uint16_t conn_handle)
     default:
         break;
     }
-}
-
-int gatt_svr_chr_ota_data_cb(uint16_t conn_handle, uint16_t attr_handle,
-                             struct ble_gatt_access_ctxt *ctxt,
-                             void *arg)
-{
-    static int rc;
-    static esp_err_t err;
-
-    // store the received data into gatt_svr_chr_ota_data_val
-    rc = gatt_svr_chr_write(ctxt->om, 1, sizeof(gatt_svr_chr_ota_data_val),
-                            gatt_svr_chr_ota_data_val, NULL);
-
-    // write the received packet to the partition
-    if (updating)
-    {
-        err = esp_ota_write(update_handle, (const void *)gatt_svr_chr_ota_data_val,
-                            ota_context.packet_size);
-        if (err != ESP_OK)
-        {
-            ESP_LOGE(BLUETOOTH_OTA_TAG, "esp_ota_write failed (%s)!",
-                     esp_err_to_name(err));
-        }
-
-        ota_context.num_pkgs_received++;
-        ESP_LOGI(BLUETOOTH_OTA_TAG, "Received packet %d", ota_context.num_pkgs_received);
-    }
-
-    return rc;
-}
-
-/*
-  This callback is applied when a user has applied the
-*/
-int gatt_svr_chr_ota_apply_update(uint16_t conn_handle, uint16_t attr_handle,
-                                  struct ble_gatt_access_ctxt *ctxt,
-                                  void *arg)
-{
-
-    ESP_LOGI(LOG_TAG_GATT_SVR, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-    // todo - return and handle error
-    update_app_partition(conn_handle);
-    return 0;
-}
-
-/*
-  This callback that is called when OTA control charactaristic is requested for the OTA service.
-  note: this function is static so all variables are initized only once and last for the lifetime of the application
-*/
-int gatt_svr_chr_ota_control_cb(uint16_t conn_handle,
-                                uint16_t attr_handle,
-                                struct ble_gatt_access_ctxt *ctxt,
-                                void *arg)
-{
-    static int rc;
-    static int8_t length = sizeof(gatt_svr_chr_ota_control_val);
-
-    // Here is where we set the control value based on the request from the client, so we should do something similar!
-    switch (ctxt->op)
-    {
-    case BLE_GATT_ACCESS_OP_READ_CHR:
-        // a client is reading the current value of ota control
-        rc = os_mbuf_append(ctxt->om, &gatt_svr_chr_ota_control_val, length);
-        return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
-        break;
-
-    case BLE_GATT_ACCESS_OP_WRITE_CHR:
-        // a client is writing a value to ota control
-        rc = gatt_svr_chr_write(ctxt->om, 1, length,
-                                &gatt_svr_chr_ota_control_val, NULL);
-        // update the OTA state with the new value
-        update_ota_control(conn_handle);
-        return rc;
-        break;
-
-    default:
-        break;
-    }
-
-    // this shouldn't happen
-    assert(0);
-    return BLE_ATT_ERR_UNLIKELY;
 }
