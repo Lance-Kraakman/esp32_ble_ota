@@ -14,7 +14,7 @@
 
 // bluetooth part of the application
 #include "application/bluetooth/bluetooth.h"
-#include "application/protobuf/algorithim/Algorithim.pb.h"
+#include "application/proto/c_proto/Algorithim.pb.h"
 
 #define LOG_TAG_MAIN "main"
 

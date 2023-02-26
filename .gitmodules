@@ -6,3 +6,7 @@
 	path = esp/components/BMI160_driver
 	url = https://github.com/Valiturus-Team/BMI160_driver
 	branch = master
+[submodule "esp/main/application/proto"]
+	path = esp/main/application/proto
+	url = https://github.com/Valiturus-Team/Protofiles
+	branch = main
