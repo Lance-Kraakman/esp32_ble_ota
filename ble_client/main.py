@@ -141,7 +141,6 @@ async def send_ota(file_path):
 
 
 
-
                 # subscribe to app update 
                 await client.start_notify(
                     APPLY_UPDATE_UUID,

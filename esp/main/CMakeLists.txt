@@ -2,6 +2,7 @@
 
 set(MAIN_REQUIRES "${MAIN_REQUIRES} driver valiturus_led valiturus_button nvs_flash bt bootloader app_update BMI160_driver lsm303agr-pid lsm303agrImpl protobuf valiturus_battery esp_http_server esp_eth")
 set(CPACK_SOURCE_IGNORE_FILES "examples/*")
+set(CPACK_SOURCE_IGNORE_FILES "application/protobuf/algorithim/dart/*")
 
 set(MAIN_SRCS
     "${MAIN_SRCS}"

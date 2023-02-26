@@ -26,13 +26,13 @@
 uint16_t messaging_output_handle;
 uint16_t messaging_input_handle;
 
-uint8_t message_control_val;   // used to control message batches
+uint8_t message_control_val; // used to control message batches
 
 // buffer used for incomming packets
-uint8_t input_message_data[512]; 
+uint8_t input_message_data[1024];
 
 // buffer used for outgoing packets
-uint8_t output_packet_buffer[512];
+uint8_t output_packet_buffer[1024];
 
 #define MESSAGING_BLE_TAG "MESSAGING BLE"
 
@@ -40,60 +40,73 @@ uint8_t output_packet_buffer[512];
 int gatt_svr_chr_messaging_output_stream_cb(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
     static int rc;
-    static esp_err_t err;    
+    static esp_err_t err;
 
-    switch (ctxt->op) {
-        case BLE_GATT_ACCESS_OP_READ_CHR:            
-            /*
-            
-             here we want to put some data onto the queue.
-             we put as much data as we need onto os_mbuf_append 
-                    
-            */
+    switch (ctxt->op)
+    {
+    case BLE_GATT_ACCESS_OP_READ_CHR:
+        /*
 
-            // TODO - 
-            // read from queue through some callback    
+         here we want to put some data onto the queue.
+         we put as much data as we need onto os_mbuf_append
 
-            // COPY data so data can be discarded wherever it came from 
-            rc = os_mbuf_copyinto(ctxt->om, 0, "here is a popped message from the queue", sizeof("here is some strings"));
-            return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;    
-            
-            break;
+        */
+
+        // TODO -
+        // read from queue through some callback
+
+        // COPY data so data can be discarded wherever it came from
+        rc = os_mbuf_copyinto(ctxt->om, 0, "here is a popped message from the queue", sizeof("here is some strings"));
+
+        ESP_LOGI(MESSAGING_BLE_TAG, "sending bytes");
+
+        return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+
+        break;
     }
-    
+
     return rc;
 }
-
 
 // callback for client message writes
 int gatt_svr_chr_messaging_input_stream_cb(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
     static int rc;
     static esp_err_t err;
+    ESP_LOGI(MESSAGING_BLE_TAG, "----we got here!-------: %d", ctxt->op);
+    switch (ctxt->op)
+    {
+    case BLE_GATT_ACCESS_OP_WRITE_CHR:
 
-    switch (ctxt->op) {
-        case BLE_GATT_ACCESS_OP_WRITE_CHR:
-            // store the received data into input_packet_buffer
-            rc = gatt_svr_chr_write(ctxt->om, 1, sizeof(input_message_data),
-                                    input_message_data, NULL);
+        uint16_t bytes_written;
+
+        // store the received data into input_packet_buffer
+        rc = gatt_svr_chr_write(ctxt->om, 1, sizeof(input_message_data),
+                                input_message_data, &bytes_written);
+
+        char *buffer = malloc(sizeof(char) * bytes_written);
+        strncpy(buffer, (char *)input_message_data, bytes_written);
+
+        ESP_LOGI(MESSAGING_BLE_TAG, "received bytes: %u", bytes_written);
+        ESP_LOGI(MESSAGING_BLE_TAG, "%s", (char *)buffer);
+
+        free(buffer);
 
         /*
             Here is where we put the received data onto some protobuf queue
         */
-        // add message to queue somewhere 
+        // add message to queue somewhere
     }
     return rc;
 }
 
 /*
-
     . Maybe a data read callback could go here which will let the
     user know that the read has been completed
-
-
 */
 
 // notify client input_message_data is legit
-void _notify_message_ready() {
-    ble_gatts_chr_updated(messaging_output_handle); 
+void _notify_message_ready()
+{
+    ble_gatts_chr_updated(messaging_output_handle);
 }

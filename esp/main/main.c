@@ -21,12 +21,6 @@
 void app_main(void)
 {
 
-  // rolling algorithim
-  RollingAlgorithim rolling = {};
-
-  // algo config
-  AlgorithimConfiguration algoConfig = {};
-
   ota_app_init();
 
   // enable light sleep
@@ -75,5 +69,4 @@ void app_main(void)
   // }
 
   // valiturus_battery_deinit();
-
 }

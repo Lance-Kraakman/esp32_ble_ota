@@ -224,7 +224,7 @@ void update_ota_control(uint16_t conn_handle)
         updating = false;
 
         // end the OTA and start validation
-        err = esp_ota_end(update_handle);
+        err = (update_handle);
         if (err != ESP_OK)
         {
             if (err == ESP_ERR_OTA_VALIDATE_FAILED)

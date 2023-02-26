@@ -9,109 +9,202 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-/* Enum definitions */
-typedef enum _AlgorithimType
-{
-    AlgorithimType_INTERVAL = 0,
-    AlgorithimType_TIMED = 1
-} AlgorithimType;
-
 /* Struct definitions */
-typedef struct _Exercise
-{
-    uint32_t id;
-} Exercise;
+/* End Algorthims */
+typedef struct _Timed {
+    uint32_t duration;
+} Timed;
 
-typedef struct _RollingAlgorithim
-{
+typedef struct _Counted {
+    uint32_t counts;
+} Counted;
+
+/* Start Algorithims */
+typedef struct _SpikeStart {
     char dummy_field;
-} RollingAlgorithim;
+} SpikeStart;
 
-typedef struct _AlgorithimConfiguration
-{
-    pb_size_t which_algorithim;
-    union
-    {
-        RollingAlgorithim rolling;
-    } algorithim;
+/* Configurations */
+typedef struct _Bouncing {
+    uint32_t jumps; /* number of jumps to be measured */
+} Bouncing;
+
+/* Outputs */
+typedef struct _BouningRep {
+    uint32_t averageHeight;
+    uint32_t averageGroundContactTime;
+    pb_callback_t measurements;
+} BouningRep;
+
+typedef struct _BounceMeasurment {
+    uint32_t groundContactTime;
+    uint32_t height;
+} BounceMeasurment;
+
+/* Algorithm algorithim configuration */
+typedef struct _AlgorithimConfiguration {
+    pb_size_t which_endAlgorithim;
+    union {
+        Timed timed;
+    } endAlgorithim;
+    pb_size_t which_startAlgorthim;
+    union {
+        SpikeStart spikeStart;
+    } startAlgorthim;
+    pb_size_t which_configuration;
+    union {
+        Bouncing bouncing;
+    } configuration;
 } AlgorithimConfiguration;
 
+/* Measuremnts */
+typedef struct _Rep {
+    pb_size_t which_rep;
+    union {
+        BouningRep bouningRep;
+    } rep;
+} Rep;
+
+/* transfer Container */
+typedef struct _Transfer {
+    pb_size_t which_message;
+    union {
+        AlgorithimConfiguration Algorithim;
+        Rep rep;
+    } message;
+} Transfer;
+
+
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-/* Helper constants for enums */
-#define _AlgorithimType_MIN AlgorithimType_INTERVAL
-#define _AlgorithimType_MAX AlgorithimType_TIMED
-#define _AlgorithimType_ARRAYSIZE ((AlgorithimType)(AlgorithimType_TIMED + 1))
-
 /* Initializer values for message structs */
-#define Exercise_init_default \
-    {                         \
-        0                     \
-    }
-#define RollingAlgorithim_init_default \
-    {                                  \
-        0                              \
-    }
-#define AlgorithimConfiguration_init_default \
-    {                                        \
-        0,                                   \
-        {                                    \
-            RollingAlgorithim_init_default   \
-        }                                    \
-    }
-#define Exercise_init_zero \
-    {                      \
-        0                  \
-    }
-#define RollingAlgorithim_init_zero \
-    {                               \
-        0                           \
-    }
-#define AlgorithimConfiguration_init_zero \
-    {                                     \
-        0,                                \
-        {                                 \
-            RollingAlgorithim_init_zero   \
-        }                                 \
-    }
+#define Timed_init_default                       {0}
+#define Counted_init_default                     {0}
+#define SpikeStart_init_default                  {0}
+#define Bouncing_init_default                    {0}
+#define BouningRep_init_default                  {0, 0, {{NULL}, NULL}}
+#define BounceMeasurment_init_default            {0, 0}
+#define AlgorithimConfiguration_init_default     {0, {Timed_init_default}, 0, {SpikeStart_init_default}, 0, {Bouncing_init_default}}
+#define Rep_init_default                         {0, {BouningRep_init_default}}
+#define Transfer_init_default                    {0, {AlgorithimConfiguration_init_default}}
+#define Timed_init_zero                          {0}
+#define Counted_init_zero                        {0}
+#define SpikeStart_init_zero                     {0}
+#define Bouncing_init_zero                       {0}
+#define BouningRep_init_zero                     {0, 0, {{NULL}, NULL}}
+#define BounceMeasurment_init_zero               {0, 0}
+#define AlgorithimConfiguration_init_zero        {0, {Timed_init_zero}, 0, {SpikeStart_init_zero}, 0, {Bouncing_init_zero}}
+#define Rep_init_zero                            {0, {BouningRep_init_zero}}
+#define Transfer_init_zero                       {0, {AlgorithimConfiguration_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define Exercise_id_tag 1
-#define AlgorithimConfiguration_rolling_tag 1
+#define Timed_duration_tag                       1
+#define Counted_counts_tag                       1
+#define Bouncing_jumps_tag                       1
+#define BouningRep_averageHeight_tag             1
+#define BouningRep_averageGroundContactTime_tag  2
+#define BouningRep_measurements_tag              3
+#define BounceMeasurment_groundContactTime_tag   1
+#define BounceMeasurment_height_tag              2
+#define AlgorithimConfiguration_timed_tag        1
+#define AlgorithimConfiguration_spikeStart_tag   2
+#define AlgorithimConfiguration_bouncing_tag     3
+#define Rep_bouningRep_tag                       1
+#define Transfer_Algorithim_tag                  1
+#define Transfer_rep_tag                         2
 
 /* Struct field encoding specification for nanopb */
-#define Exercise_FIELDLIST(X, a) \
-    X(a, STATIC, SINGULAR, UINT32, id, 1)
-#define Exercise_CALLBACK NULL
-#define Exercise_DEFAULT NULL
+#define Timed_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   duration,          1)
+#define Timed_CALLBACK NULL
+#define Timed_DEFAULT NULL
 
-#define RollingAlgorithim_FIELDLIST(X, a)
+#define Counted_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   counts,            1)
+#define Counted_CALLBACK NULL
+#define Counted_DEFAULT NULL
 
-#define RollingAlgorithim_CALLBACK NULL
-#define RollingAlgorithim_DEFAULT NULL
+#define SpikeStart_FIELDLIST(X, a) \
+
+#define SpikeStart_CALLBACK NULL
+#define SpikeStart_DEFAULT NULL
+
+#define Bouncing_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   jumps,             1)
+#define Bouncing_CALLBACK NULL
+#define Bouncing_DEFAULT NULL
+
+#define BouningRep_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   averageHeight,     1) \
+X(a, STATIC,   SINGULAR, UINT32,   averageGroundContactTime,   2) \
+X(a, CALLBACK, REPEATED, MESSAGE,  measurements,      3)
+#define BouningRep_CALLBACK pb_default_field_callback
+#define BouningRep_DEFAULT NULL
+#define BouningRep_measurements_MSGTYPE BounceMeasurment
+
+#define BounceMeasurment_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   groundContactTime,   1) \
+X(a, STATIC,   SINGULAR, UINT32,   height,            2)
+#define BounceMeasurment_CALLBACK NULL
+#define BounceMeasurment_DEFAULT NULL
 
 #define AlgorithimConfiguration_FIELDLIST(X, a) \
-    X(a, STATIC, ONEOF, MESSAGE, (algorithim, rolling, algorithim.rolling), 1)
+X(a, STATIC,   ONEOF,    MESSAGE,  (endAlgorithim,timed,endAlgorithim.timed),   1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (startAlgorthim,spikeStart,startAlgorthim.spikeStart),   2) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (configuration,bouncing,configuration.bouncing),   3)
 #define AlgorithimConfiguration_CALLBACK NULL
 #define AlgorithimConfiguration_DEFAULT NULL
-#define AlgorithimConfiguration_algorithim_rolling_MSGTYPE RollingAlgorithim
+#define AlgorithimConfiguration_endAlgorithim_timed_MSGTYPE Timed
+#define AlgorithimConfiguration_startAlgorthim_spikeStart_MSGTYPE SpikeStart
+#define AlgorithimConfiguration_configuration_bouncing_MSGTYPE Bouncing
 
-    extern const pb_msgdesc_t Exercise_msg;
-    extern const pb_msgdesc_t RollingAlgorithim_msg;
-    extern const pb_msgdesc_t AlgorithimConfiguration_msg;
+#define Rep_FIELDLIST(X, a) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (rep,bouningRep,rep.bouningRep),   1)
+#define Rep_CALLBACK NULL
+#define Rep_DEFAULT NULL
+#define Rep_rep_bouningRep_MSGTYPE BouningRep
+
+#define Transfer_FIELDLIST(X, a) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (message,Algorithim,message.Algorithim),   1) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (message,rep,message.rep),   2)
+#define Transfer_CALLBACK NULL
+#define Transfer_DEFAULT NULL
+#define Transfer_message_Algorithim_MSGTYPE AlgorithimConfiguration
+#define Transfer_message_rep_MSGTYPE Rep
+
+extern const pb_msgdesc_t Timed_msg;
+extern const pb_msgdesc_t Counted_msg;
+extern const pb_msgdesc_t SpikeStart_msg;
+extern const pb_msgdesc_t Bouncing_msg;
+extern const pb_msgdesc_t BouningRep_msg;
+extern const pb_msgdesc_t BounceMeasurment_msg;
+extern const pb_msgdesc_t AlgorithimConfiguration_msg;
+extern const pb_msgdesc_t Rep_msg;
+extern const pb_msgdesc_t Transfer_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define Exercise_fields &Exercise_msg
-#define RollingAlgorithim_fields &RollingAlgorithim_msg
+#define Timed_fields &Timed_msg
+#define Counted_fields &Counted_msg
+#define SpikeStart_fields &SpikeStart_msg
+#define Bouncing_fields &Bouncing_msg
+#define BouningRep_fields &BouningRep_msg
+#define BounceMeasurment_fields &BounceMeasurment_msg
 #define AlgorithimConfiguration_fields &AlgorithimConfiguration_msg
+#define Rep_fields &Rep_msg
+#define Transfer_fields &Transfer_msg
 
 /* Maximum encoded size of messages (where known) */
-#define AlgorithimConfiguration_size 2
-#define Exercise_size 6
-#define RollingAlgorithim_size 0
+/* BouningRep_size depends on runtime parameters */
+/* Rep_size depends on runtime parameters */
+/* Transfer_size depends on runtime parameters */
+#define AlgorithimConfiguration_size             18
+#define BounceMeasurment_size                    12
+#define Bouncing_size                            6
+#define Counted_size                             6
+#define SpikeStart_size                          0
+#define Timed_size                               6
 
 #ifdef __cplusplus
 } /* extern "C" */

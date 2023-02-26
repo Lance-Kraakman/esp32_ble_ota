@@ -5,6 +5,13 @@
 extern "C"
 {
 #endif
+    typedef struct
+    {
+        char *buffer;
+        int bufferLength;
+
+    } messageBuffer;
+
     void bluetooth_init();
     void notify_message_ready();
 #ifdef __cplusplus

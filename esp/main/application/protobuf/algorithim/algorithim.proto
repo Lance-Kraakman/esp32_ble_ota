@@ -1,23 +1,60 @@
 syntax = "proto3";
 
-message Exercise { uint32 id = 1; }
+/*
+  End Algorthims
+*/
+message Timed { uint32 duration = 1; }
 
-enum AlgorithimType {
-  INTERVAL = 0;
-  TIMED = 1;
+message Counted { uint32 counts = 1; }
+
+/*
+  Start Algorithims
+*/
+message SpikeStart {}
+
+/*
+  Configurations
+*/
+message Bouncing {
+  uint32 jumps = 1; // number of jumps to be measured
 }
 
-message RollingAlgorithim {}
+/*
+  Outputs
+*/
+message BouningRep {
+  uint32 averageHeight = 1;
+  uint32 averageGroundContactTime = 2;
+  repeated BounceMeasurment measurements = 3;
+}
 
+message BounceMeasurment {
+  uint32 groundContactTime = 1;
+  uint32 height = 2;
+}
+
+/*
+  Data transfer messages
+*/
+
+// Algorithm algorithim configuration
 message AlgorithimConfiguration {
-  oneof algorithim { RollingAlgorithim rolling = 1; }
+  oneof endAlgorithim { Timed timed = 1; }
+  oneof startAlgorthim { SpikeStart spikeStart = 2; }
+  oneof configuration { Bouncing bouncing = 3; }
 }
 
+// Measuremnts
+message Rep {
+  oneof rep { BouningRep bouningRep = 1; };
+}
 
-// // TransferMessage type is transfered across 
+/*
+  transfer Container
+*/
 message Transfer {
   oneof message {
-    RollingAlgorithim rolling = 1;
-    Exercise exercise = 2;
+    AlgorithimConfiguration Algorithim = 1;
+    Rep rep = 2;
   }
 }

@@ -40,6 +40,7 @@ void advertise()
     fields.adv_itvl = 10000;
     fields.adv_itvl_is_present = true;
 
+
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0)
     {

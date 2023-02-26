@@ -63,70 +63,68 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
              },
          }},
 
-    // {
-    //     // service: OTA Service
-    //     .type = BLE_GATT_SVC_TYPE_PRIMARY,
-    //     .uuid = &gatt_svr_svc_ota_uuid.u,
-    //     .characteristics =
-    //         (struct ble_gatt_chr_def[]){
-    //             {
-    //                 // characteristic: OTA control
-    //                 .access_cb = gatt_svr_chr_ota_control_cb,
-    //                 .uuid = &gatt_svr_chr_ota_control_uuid.u,
-    //                 .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE |
-    //                          BLE_GATT_CHR_F_NOTIFY,
-    //                 .val_handle = &ota_control_val_handle,
-    //             },
-    //             {
-    //                 // characteristic: OTA data
-    //                 .uuid = &gatt_svr_chr_ota_data_uuid.u,
-    //                 .access_cb = gatt_svr_chr_ota_data_cb,
-    //                 .flags = BLE_GATT_CHR_F_WRITE,
-    //                 .val_handle = &ota_data_val_handle,
-    //             },
-    //             {
-    //                 // characteristic: OTA set partition and reboot
-    //                 .uuid = &gatt_svr_chr_ota_apply_update_uuid.u,
-    //                 .access_cb = gatt_svr_chr_ota_apply_update,
-    //                 .flags =
-    //                 /*
+    {
+        // service: OTA Service
+        .type = BLE_GATT_SVC_TYPE_PRIMARY,
+        .uuid = &gatt_svr_svc_ota_uuid.u,
+        .characteristics =
+            (struct ble_gatt_chr_def[]){
+                {
+                    // characteristic: OTA control
+                    .access_cb = gatt_svr_chr_ota_control_cb,
+                    .uuid = &gatt_svr_chr_ota_control_uuid.u,
+                    .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE |
+                             BLE_GATT_CHR_F_NOTIFY,
+                    .val_handle = &ota_control_val_handle,
+                },
+                {
+                    // characteristic: OTA data
+                    .uuid = &gatt_svr_chr_ota_data_uuid.u,
+                    .access_cb = gatt_svr_chr_ota_data_cb,
+                    .flags = BLE_GATT_CHR_F_WRITE,
+                    .val_handle = &ota_data_val_handle,
+                },
+                {
+                    // characteristic: OTA set partition and reboot
+                    .uuid = &gatt_svr_chr_ota_apply_update_uuid.u,
+                    .access_cb = gatt_svr_chr_ota_apply_update,
+                    .flags =
+                        BLE_GATT_CHR_F_WRITE |
+                        BLE_GATT_CHR_PROP_NOTIFY |
+                        BLE_GATT_CHR_F_INDICATE |
+                        BLE_GATT_CHR_F_NOTIFY,
+                    .val_handle = &ota_apply_update_val_handle,
+                },
+                {
+                    0,
+                }},
+    },
+    // 
+    {
+        .type = BLE_GATT_SVC_TYPE_PRIMARY,
+        .uuid = &gatt_svr_svc_messaging_uuid.u,
+        .characteristics = (struct ble_gatt_chr_def[]){
+            {
+                .access_cb = gatt_svr_chr_messaging_output_stream_cb,
+                .uuid = &gatt_svr_chr_messaging_output_uuid.u,
+                .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY, // client can read or subscribe to notifications
+                .val_handle = &messaging_output_handle,
+            },
+            {
+                .uuid = &gatt_svr_chr_messaging_input_uuid.u, // characteristic: OTA data
+                .access_cb = gatt_svr_chr_messaging_input_stream_cb,
+                .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
+                .val_handle = &messaging_input_handle,
+            },
+            {
+                0,
+            },
+        },
+    },
 
-    //                     TODO - workout
-
-    //                 */
-    //                     BLE_GATT_CHR_F_WRITE |
-    //                     BLE_GATT_CHR_PROP_NOTIFY |
-    //                     BLE_GATT_CHR_F_INDICATE |
-    //                     BLE_GATT_CHR_F_NOTIFY,
-    //                 .val_handle = &ota_apply_update_val_handle,
-    //             },
-    //             {
-    //                 0,
-    //             }},
-    // },
-
-    // service: messaging
-    // {
-    //     .type = BLE_GATT_SVC_TYPE_PRIMARY,
-    //     .uuid = &gatt_svr_svc_messaging_uuid.u,
-    //     .characteristics = (struct ble_gatt_chr_def[]){
-    //         {
-    //             .access_cb = gatt_svr_chr_messaging_output_stream_cb,
-    //             .uuid = &gatt_svr_chr_messaging_output_uuid.u,
-    //             .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_NOTIFY, // client can read or subscribe to notifications
-    //             .val_handle = &messaging_output_handle,
-    //         },
-    //         {
-    //             .uuid = &gatt_svr_chr_messaging_input_uuid.u, // characteristic: OTA data
-    //             .access_cb = gatt_svr_chr_messaging_input_stream_cb,
-    //             .flags = BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_READ,
-    //             .val_handle = &messaging_input_handle,
-    //         },
-    //         {
-    //             0,
-    //         },
-    //     },
-    // },
+    {
+        0,
+    },
 };
 
 static int gatt_svr_chr_access_device_info(uint16_t conn_handle,

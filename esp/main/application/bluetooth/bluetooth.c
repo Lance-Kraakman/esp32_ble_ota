@@ -16,10 +16,8 @@
 
 /*
   This file is for PUBLIC methods/interfacing the bluetooth application folder with the application.
-  Functions that 
+  Functions that
 */
-
-
 
 /*
   A GATT service is a collection of charactarstics.
@@ -43,16 +41,7 @@
 
 // need to consider how memory will be effected on both sides....
 
-// this is fine
-typedef struct {
-  char *buffer;
-  int bufferLength;
-  // bool lock; maybe in the future add a data lock
-  // anybody using this data must use it straight away, which is really dangerous 
-} messageData;
-
-// message received callback is called when a message has been received 
-void bluetooth_init(void (*bytesReceivedCallback)(messageData receivingData), void (*sendBytesCallback)(messageData sendingData))
+void bluetooth_init(void (*bytesReceivedCallback)(messageBuffer receivingData), void (*sendBytesCallback)(messageBuffer sendingData))
 {
 
   // BLE Setup
@@ -74,6 +63,7 @@ void bluetooth_init(void (*bytesReceivedCallback)(messageData receivingData), vo
 }
 
 // notify_message_ready notifies the client that there is a message ready
-void notify_message_ready() {
+void notify_message_ready()
+{
   _notify_message_ready();
 }
